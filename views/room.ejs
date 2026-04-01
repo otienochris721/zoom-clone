@@ -1,47 +1,38 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Zoom Pro Clone</title>
-    <link rel="stylesheet" href="/style.css">
-    <script src="/socket.io/socket.io.js"></script>
-    <script src="https://unpkg.com/peerjs@1.3.1/dist/peerjs.min.js"></script>
-    <script>const ROOM_ID = "<%= roomId %>";</script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Zoom Clone</title>
+  <script>
+    const ROOM_ID = "<%= roomId %>"
+  </script>
+  <script src="https://unpkg.com/peerjs@1.3.1/dist/peerjs.min.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+  <script src="script.js" defer></script>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="main">
-        <div class="main__left">
-            <div id="video-grid"></div>
-            <div class="main__controls">
-                <div class="main__controls__block">
-                    <button id="mute-btn" class="control-btn" onclick="muteUnmute()">🎙️ Mute</button>
-                    <button id="video-btn" class="control-btn" onclick="playStop()">📹 Stop Video</button>
-                </div>
-                <div class="main__controls__block">
-                    <button class="control-btn" onclick="shareScreen()">🖥️ Share Screen</button>
-                    <button class="control-btn" onclick="raiseHand()">✋ Raise Hand</button>
-                    <button class="control-btn" onclick="toggleChat()">💬 Chat/Members</button>
-                </div>
-                <div class="main__controls__block">
-                    <button class="control-btn leave-btn" onclick="window.location.href='/'">🛑 Leave</button>
-                </div>
-            </div>
-        </div>
-        <div class="main__right" id="chat-window">
-            <div class="main__header"><h6>Participants</h6></div>
-            <div class="main__participants_window">
-                <ul id="participants-list"></ul>
-            </div>
-            <div class="main__header"><h6>Chat</h6></div>
-            <div class="main__chat_window">
-                <ul class="messages"></ul>
-            </div>
-            <div class="main__message_container">
-                <input id="chat_message" type="text" placeholder="Type message here...">
-            </div>
-        </div>
+  <div id="video-grid"></div>
+
+  <div class="main__controls">
+    <div class="main__controls__block">
+      <div onclick="muteUnmute()" class="main__controls__button main__mute_button">
+        <span>Mute</span>
+      </div>
+      <div onclick="playStop()" class="main__controls__button main__video_button">
+        <span>Stop Video</span>
+      </div>
     </div>
-    <script src="script.js"></script>
+    <div class="main__controls__block">
+       <div class="main__controls__button" onclick="alert('Chat coming soon!')">
+          <span>Chat</span>
+       </div>
+       <div class="main__controls__button" onclick="window.location.href='/'">
+          <span class="leave_meeting">Leave</span>
+       </div>
+    </div>
+  </div>
 </body>
 </html>
