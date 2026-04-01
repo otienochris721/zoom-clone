@@ -1,12 +1,11 @@
-const path = require('path');
 const express = require('express');
 const app = express();
 const server = require('http').Server(app);
 const io = require('socket.io')(server);
 const { v4: uuidV4 } = require('uuid');
+const path = require('path'); // Only keep this one!
 
-app.set('view engine', 'ej
-
+app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 app.use(express.static(path.join(__dirname, 'public')));
 
