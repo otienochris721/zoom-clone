@@ -9,7 +9,6 @@ const myPeer = new Peer(undefined, {
 let myVideoStream;
 const myVideo = document.createElement('video');
 myVideo.muted = true;
-const peers = {};
 
 navigator.mediaDevices.getUserMedia({
   video: true,
@@ -27,9 +26,7 @@ navigator.mediaDevices.getUserMedia({
   });
 
   socket.on('user-connected', userId => {
-    setTimeout(() => {
-        connectToNewUser(userId, stream);
-    }, 1000);
+    setTimeout(() => { connectToNewUser(userId, stream) }, 1000);
   });
 });
 
@@ -43,14 +40,11 @@ function connectToNewUser(userId, stream) {
   call.on('stream', userVideoStream => {
     addVideoStream(video, userVideoStream);
   });
-  peers[userId] = call;
 }
 
 function addVideoStream(video, stream) {
   video.srcObject = stream;
-  video.addEventListener('loadedmetadata', () => {
-    video.play();
-  });
+  video.addEventListener('loadedmetadata', () => { video.play(); });
   videoGrid.append(video);
 }
 
@@ -59,20 +53,20 @@ const muteUnmute = () => {
   const enabled = myVideoStream.getAudioTracks()[0].enabled;
   if (enabled) {
     myVideoStream.getAudioTracks()[0].enabled = false;
-    document.querySelector('.main__mute_button').innerHTML = "Unmute";
+    document.querySelector('.mute-text').innerHTML = "Unmute";
   } else {
     myVideoStream.getAudioTracks()[0].enabled = true;
-    document.querySelector('.main__mute_button').innerHTML = "Mute";
+    document.querySelector('.mute-text').innerHTML = "Mute";
   }
 }
 
 const playStop = () => {
-  let enabled = myVideoStream.getVideoTracks()[0].enabled;
+  const enabled = myVideoStream.getVideoTracks()[0].enabled;
   if (enabled) {
     myVideoStream.getVideoTracks()[0].enabled = false;
-    document.querySelector('.main__video_button').innerHTML = "Start Video";
+    document.querySelector('.video-text').innerHTML = "Start Video";
   } else {
     myVideoStream.getVideoTracks()[0].enabled = true;
-    document.querySelector('.main__video_button').innerHTML = "Stop Video";
+    document.querySelector('.video-text').innerHTML = "Stop Video";
   }
 }
