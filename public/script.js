@@ -9,6 +9,7 @@ const myPeer = new Peer(undefined, {
 let myVideoStream;
 const myVideo = document.createElement('video');
 myVideo.muted = true;
+const peers = {};
 
 navigator.mediaDevices.getUserMedia({
   video: true,
@@ -40,6 +41,7 @@ function connectToNewUser(userId, stream) {
   call.on('stream', userVideoStream => {
     addVideoStream(video, userVideoStream);
   });
+  peers[userId] = call;
 }
 
 function addVideoStream(video, stream) {
@@ -48,7 +50,6 @@ function addVideoStream(video, stream) {
   videoGrid.append(video);
 }
 
-// Button Logic
 const muteUnmute = () => {
   const enabled = myVideoStream.getAudioTracks()[0].enabled;
   if (enabled) {
