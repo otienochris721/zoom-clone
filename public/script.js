@@ -71,3 +71,29 @@ const playStop = () => {
     document.querySelector('.video-text').innerHTML = "Stop Video";
   }
 }
+// Add this function at the bottom of your script.js
+const shareScreen = () => {
+  navigator.mediaDevices.getDisplayMedia({
+    video: { cursor: "always" },
+    audio: { echoCancellation: true, noiseSuppression: true }
+  }).then(stream => {
+    let videoTrack = stream.getVideoTracks()[0];
+    
+    // This replaces your camera track with the screen track for all peers
+    for (let peerId in peers) {
+      let sender = peers[peerId].peerConnection.getSenders().find(s => s.track.kind === videoTrack.kind);
+      sender.replaceTrack(videoTrack);
+    }
+
+    // Stop sharing when the user clicks "Stop Sharing" in the browser UI
+    videoTrack.onended = () => {
+      let screenTrack = myVideoStream.getVideoTracks()[0];
+      for (let peerId in peers) {
+        let sender = peers[peerId].peerConnection.getSenders().find(s => s.track.kind === screenTrack.kind);
+        sender.replaceTrack(screenTrack);
+      }
+    };
+  }).catch(err => {
+    console.error("Unable to share screen: " + err);
+  });
+}
