@@ -2,19 +2,12 @@ const express = require('express');
 const app = express();
 const server = require('http').Server(app);
 const io = require('socket.io')(server);
-const { ExpressPeerServer } = require('peer');
 const { v4: uuidV4 } = require('uuid');
-const path = require('path');
-
-const peerServer = ExpressPeerServer(server, {
-  debug: true,
-  path: '/'
-});
+const path = require('path'); 
 
 app.set('view engine', 'ejs');
-app.use('/peerjs', peerServer);
 
-// THIS LINE FIXES THE PLAIN TEXT LINKS
+// This line fixes the 404/502 errors in your console
 app.use(express.static(path.join(__dirname, 'public'))); 
 
 app.get('/', (req, res) => {
@@ -29,6 +22,10 @@ io.on('connection', socket => {
   socket.on('join-room', (roomId, userId) => {
     socket.join(roomId);
     socket.to(roomId).emit('user-connected', userId);
+    
+    socket.on('message', (message) => {
+      io.to(roomId).emit('createMessage', message);
+    });
   });
 });
 
