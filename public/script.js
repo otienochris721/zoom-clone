@@ -1,14 +1,16 @@
 const socket = io('/');
 const videoGrid = document.getElementById('video-grid');
+const myVideo = document.createElement('video');
+myVideo.muted = true;
+
 const myPeer = new Peer(undefined, {
   path: '/peerjs',
   host: '/',
-  port: '443'
+  port: '443',
+  secure: true
 });
 
 let myVideoStream;
-const myVideo = document.createElement('video');
-myVideo.muted = true;
 const peers = {};
 
 navigator.mediaDevices.getUserMedia({
@@ -27,8 +29,12 @@ navigator.mediaDevices.getUserMedia({
   });
 
   socket.on('user-connected', userId => {
-    setTimeout(() => { connectToNewUser(userId, stream) }, 1000);
+    connectToNewUser(userId, stream);
   });
+});
+
+socket.on('user-disconnected', userId => {
+  if (peers[userId]) peers[userId].close();
 });
 
 myPeer.on('open', id => {
@@ -41,59 +47,23 @@ function connectToNewUser(userId, stream) {
   call.on('stream', userVideoStream => {
     addVideoStream(video, userVideoStream);
   });
+  call.on('close', () => {
+    video.remove();
+  });
   peers[userId] = call;
 }
 
 function addVideoStream(video, stream) {
   video.srcObject = stream;
-  video.addEventListener('loadedmetadata', () => { video.play(); });
+  video.addEventListener('loadedmetadata', () => {
+    video.play();
+  });
   videoGrid.append(video);
 }
 
-const muteUnmute = () => {
-  const enabled = myVideoStream.getAudioTracks()[0].enabled;
-  if (enabled) {
-    myVideoStream.getAudioTracks()[0].enabled = false;
-    document.querySelector('.mute-text').innerHTML = "Unmute";
-  } else {
-    myVideoStream.getAudioTracks()[0].enabled = true;
-    document.querySelector('.mute-text').innerHTML = "Mute";
-  }
-}
-
-const playStop = () => {
-  const enabled = myVideoStream.getVideoTracks()[0].enabled;
-  if (enabled) {
-    myVideoStream.getVideoTracks()[0].enabled = false;
-    document.querySelector('.video-text').innerHTML = "Start Video";
-  } else {
-    myVideoStream.getVideoTracks()[0].enabled = true;
-    document.querySelector('.video-text').innerHTML = "Stop Video";
-  }
-}
-// Add this function at the bottom of your script.js
-const shareScreen = () => {
-  navigator.mediaDevices.getDisplayMedia({
-    video: { cursor: "always" },
-    audio: { echoCancellation: true, noiseSuppression: true }
-  }).then(stream => {
-    let videoTrack = stream.getVideoTracks()[0];
-    
-    // This replaces your camera track with the screen track for all peers
-    for (let peerId in peers) {
-      let sender = peers[peerId].peerConnection.getSenders().find(s => s.track.kind === videoTrack.kind);
-      sender.replaceTrack(videoTrack);
-    }
-
-    // Stop sharing when the user clicks "Stop Sharing" in the browser UI
-    videoTrack.onended = () => {
-      let screenTrack = myVideoStream.getVideoTracks()[0];
-      for (let peerId in peers) {
-        let sender = peers[peerId].peerConnection.getSenders().find(s => s.track.kind === screenTrack.kind);
-        sender.replaceTrack(screenTrack);
-      }
-    };
-  }).catch(err => {
-    console.error("Unable to share screen: " + err);
-  });
+// Hand Raise Logic
+function raiseHand() {
+  const message = "✋ Someone raised their hand!";
+  alert(message); // Simple alert for now
+  // You can extend this to emit a socket event to everyone
 }
