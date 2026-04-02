@@ -6,9 +6,8 @@ const { v4: uuidV4 } = require('uuid');
 const path = require('path');
 
 app.set('view engine', 'ejs');
-
-// This line is the secret to fixing the "blue marks"
-app.use(express.static(path.join(__dirname, 'public'))); 
+app.set('views', path.join(__dirname, 'views'));
+app.use(express.static(path.join(__dirname, 'public')));
 
 app.get('/', (req, res) => {
   res.redirect(`/${uuidV4()}`);
@@ -22,7 +21,14 @@ io.on('connection', socket => {
   socket.on('join-room', (roomId, userId) => {
     socket.join(roomId);
     socket.to(roomId).emit('user-connected', userId);
+
+    socket.on('disconnect', () => {
+      socket.to(roomId).emit('user-disconnected', userId);
+    });
   });
 });
 
-server.listen(process.env.PORT || 3000);
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+});

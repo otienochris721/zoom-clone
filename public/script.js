@@ -1,23 +1,22 @@
 const socket = io('/');
 const videoGrid = document.getElementById('video-grid');
-const myVideo = document.createElement('video');
-myVideo.muted = true;
 
+// PeerJS configuration for Render (HTTPS)
 const myPeer = new Peer(undefined, {
   path: '/peerjs',
   host: '/',
   port: '443',
-  secure: true
+  proxied: true
 });
 
-let myVideoStream;
+const myVideo = document.createElement('video');
+myVideo.muted = true;
 const peers = {};
 
 navigator.mediaDevices.getUserMedia({
   video: true,
   audio: true
 }).then(stream => {
-  myVideoStream = stream;
   addVideoStream(myVideo, stream);
 
   myPeer.on('call', call => {
@@ -29,7 +28,10 @@ navigator.mediaDevices.getUserMedia({
   });
 
   socket.on('user-connected', userId => {
-    connectToNewUser(userId, stream);
+    // Small delay to ensure the new user's Peer is fully initialized
+    setTimeout(() => {
+      connectToNewUser(userId, stream);
+    }, 1000);
   });
 });
 
@@ -50,6 +52,7 @@ function connectToNewUser(userId, stream) {
   call.on('close', () => {
     video.remove();
   });
+
   peers[userId] = call;
 }
 
@@ -59,11 +62,4 @@ function addVideoStream(video, stream) {
     video.play();
   });
   videoGrid.append(video);
-}
-
-// Hand Raise Logic
-function raiseHand() {
-  const message = "✋ Someone raised their hand!";
-  alert(message); // Simple alert for now
-  // You can extend this to emit a socket event to everyone
 }
